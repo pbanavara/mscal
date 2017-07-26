@@ -20,6 +20,9 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     var dates = [Int]()
     var noOfDays = 7
     var highlightIndex = 0
+    var dataModel = DataModel()
+    // Hardcoded agenda items for the tableview datasource. Change this later
+    
     
     
     override func viewDidLoad() {
@@ -35,23 +38,30 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         agendaView.dataSource = self
         agendaView.delegate = self
         
-        navBar.titleTextAttributes = ["June": "June"]
-        let dayOfMonth = getDate()
-        //highlightIndex = dates.index(of: dayOfMonth)!
-        highlightIndex = 23
+        navBar.topItem?.title = dataModel.getMonth(month: getDate().month!)
+        let dayOfMonth = getDate().day!
+        highlightIndex = dates.index(of: dayOfMonth)!
+        //highlightIndex = 23
         print(highlightIndex)
+        //populateAgendaItems(agendaItems : &agendaItems)
+        
+        
     }
     
-    func getDate() -> Int {
+    // This method populates some dummy data. Test later for integrations with calendars
+    func populateAgendaItems(agendaItems: inout [[String]]) {
+       
+    }
+    
+    func getDate() -> DateComponents {
         
         let date = Date()
         let calendar = Calendar.current
         let components = calendar.dateComponents([.year, .month, .day], from: date)
         
-        let year =  components.year
-        let month = components.month
-        let day = components.day
-        return day!
+        //let finalDate = String(describing: day) + ":" + String(describing: month) + ":" + String(describing: year)
+        return components
+        
     }
 
     override var prefersStatusBarHidden: Bool {
@@ -78,6 +88,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = calendarView.dequeueReusableCell(withReuseIdentifier: "reuseCalendarCell", for: indexPath) as! CalendarCellCollectionViewCell
+        
         if(indexPath.row == highlightIndex) {
             cell.day_label.backgroundColor = calendarViewCellColor
         }
@@ -89,8 +100,15 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let cell = calendarView.cellForItem(at: indexPath) as! CalendarCellCollectionViewCell
         cell.day_label.backgroundColor = calendarViewCellColor
-        let element = dates.remove(at: indexPath.row)
-        print(dates)
+        //let newDates = dates.map { IndexPath(row: $0, section: 0) }
+        //calendarView.reloadItems(at: newDates)
+    }
+    
+    /**
+     Updates the table view when a collectionview cell/date is selected
+    */
+    func updateTableView() {
+        
     }
     
     func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
@@ -98,7 +116,18 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = agendaView.dequeueReusableCell(withIdentifier: "agendaItem")!
+        let cell = agendaView.dequeueReusableCell(withIdentifier: "agendaItem") as! AgendaTableViewCell
+        let i = indexPath.row
+        let agenda = dataModel.getAgendaItems()[i]
+        cell.dayMonthLabel.text = agenda.keys.first
+        let details = dataModel.getAgendaItems()[i].values
+        
+        // Unneccesaary O(n^2) loop. Optimize
+        for day in details {
+            for indDetails in day {
+                cell.agendaDetails.text?.append(indDetails)
+            }
+        }
         return cell
         
     }
