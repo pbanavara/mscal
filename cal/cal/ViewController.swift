@@ -271,38 +271,32 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     
         }
         if scrollView.isKind(of: UITableView.self) {
-            lastContentOffset = scrollView.contentOffset
+            let translation = scrollView.panGestureRecognizer.translation(in: scrollView.superview!)
+            if translation.y < 0 {
+                // swipes from top to bottom of screen -> down
+                NSLog("Table view scrolled down")
+                let element = deque.dequeueBack()
+                let day = element?.keys.first!
+                let nextDay = Calendar.current.date(byAdding: .day, value: 1, to: day!)!
+                let items = dataModel.getAgendaItems(day: nextDay)
+                deque.enqueue([nextDay: items])
+                agendaView.reloadData()
+            } else {
+                NSLog("Table view scrolled up")
+                let element = deque.dequeue()
+                let day = element?.keys.first!
+                let prevDay = Calendar.current.date(byAdding: .day, value: -1, to: day!)!
+                let items = dataModel.getAgendaItems(day: prevDay)
+                deque.enqueueFront([prevDay: items])
+                agendaView.reloadData()
+
+            }
         }
         
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return CGFloat(tableCellHeight)
-    }
-    
-    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
-        if scrollView.isKind(of: UITableView.self) {
-            if (lastContentOffset.y < agendaView.contentOffset.y) {
-                NSLog("Scrolled Down")
-                let element = deque.getAtIndex(ind: 7)
-                let day = element?.keys.first!
-                let nextDay = Calendar.current.date(byAdding: .day, value: 1, to: day!)!
-                let items = dataModel.getAgendaItems(day: nextDay)
-                deque.enqueue([nextDay: items])
-
-                
-            }
-                
-            else if (lastContentOffset.y > agendaView.contentOffset.y) {
-                NSLog("Scrolled Up")
-                let element = deque.getAtIndex(ind: 0)
-                let day = element?.keys.first!
-                let prevDay = Calendar.current.date(byAdding: .day, value: -1, to: day!)!
-                let items = dataModel.getAgendaItems(day: prevDay)
-                deque.enqueueFront([prevDay: items])
-            }
-        }
-            
     }
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {

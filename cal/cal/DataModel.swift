@@ -78,7 +78,8 @@ public struct Deque<T> {
         if isEmpty {
             return nil
         } else {
-            return array.removeFirst()
+            //return array.removeFirst()
+            return array.first
         }
     }
     
@@ -86,7 +87,8 @@ public struct Deque<T> {
         if isEmpty {
             return nil
         } else {
-            return array.removeLast()
+            //return array.removeLast()
+            return array.last
         }
     }
     
