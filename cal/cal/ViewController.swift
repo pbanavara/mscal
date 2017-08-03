@@ -37,6 +37,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     var tableCellHeight = 1.0
     var currentDate: Date = Date()
     var deque = Deque<[Date: [String]]>()
+    var dequeCounter = 8
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -127,7 +128,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         if (collectionView == self.calendarView) {
             let cell = calendarView.dequeueReusableCell(withReuseIdentifier: "reuseCalendarCell", for: indexPath) as! CalendarCellCollectionViewCell
             let row = indexPath.row
-            var date = totalDates.flatMap { $0 }[row]
+            let date = totalDates.flatMap { $0 }[row]
             
             let dateFormatter = DateFormatter()
             dateFormatter.timeStyle = DateFormatter.Style.none
@@ -167,27 +168,31 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         let cell = calendarView.cellForItem(at: indexPath) as! CalendarCellCollectionViewCell
         //cell.day_label.backgroundColor = calendarViewCellColor
         let date = totalDates.flatMap { $0 } [indexPath.row]
-        let incrDate = Calendar.current.date(byAdding: .day, value: 1, to: date)!
-        var cDate = currentDate
+        var incrDate = Calendar.current.date(byAdding: .day, value: 1, to: date)!
         dataModel.setAgendaItems(day: date, items: ["adsfs", "face", "new", "abs"])
         deque.enqueueFront([date: ["adsfs", "face", "new", "abs"]])
         agendaView.reloadData()
         var flattenedDates = totalDates.flatMap { $0 }
-        var ind = indexPath.row
+        let ind = indexPath.row
         flattenedDates.remove(at: ind)
         //let indexPaths = flattenedDates.map({IndexPath(row: flattenedDates.index(of: $0)!, section:0)})
         //calendarView.reloadItems(at: indexPaths)
         cell.day_label.backgroundColor = calendarViewCellColor
         
-        let diff = self.calcuateDaysBetweenTwoDates(start: cDate, end: incrDate)
-        for i in 0..<diff {
+        //hack
+        for _ in 0..<dequeCounter{
             deque.dequeue()
-            let newDate = Calendar.current.date(byAdding: .day, value: 1, to: (deque.getAtIndex(ind: 6)?.keys.first)!)
-            let newItem = dataModel.getAgendaItems(day: newDate!)
-            deque.enqueue([newDate!: newItem])
-            cDate = newDate!
+        }
+        dequeCounter += 1
+        
+        for _ in 0..<8 {
+            let newItem = dataModel.getAgendaItems(day: incrDate)
+            deque.enqueue([incrDate: newItem])
+            let newDate = Calendar.current.date(byAdding: .day, value: 1, to: incrDate)
+            incrDate = newDate!
             
         }
+    
         agendaView.reloadData()
         
     }
@@ -272,6 +277,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         return CGFloat(tableCellHeight)
     }
     
+    tableviews
 
 }
 
