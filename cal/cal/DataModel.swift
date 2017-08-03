@@ -48,7 +48,7 @@ extension UILabel {
 extension Date {
     func getMonthName() -> String {
         let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "MMMM"
+        dateFormatter.dateFormat = "MMMM yyyy"
         let strMonth = dateFormatter.string(from: self)
         return strMonth
     }
