@@ -11,56 +11,23 @@ import UIKit
 
 class DataModel {
     
+    var agendaItems = [Date: [String]]()
     
-    let days : [Int : String] = [1 : "Sunday",
-                                 2 : "Monday",
-                                 3 : "Tuesday",
-                                 4 : "Wednesday",
-                                 5 : "Thursday",
-                                 6 : "Friday",
-                                 7 : "Saturday",
-                                 8 : "Dummy",
-                                 9 : "Dummy",
-                                 10 : "Dummy"]
-    let months : [Int : String] = [1: "January",
-                                   2 : "February",
-                                   3 : "March",
-                                   4 : "April",
-                                   5 : "May",
-                                   6 : "June",
-                                   7 : "July",
-                                   8 : "August",
-                                   9 : "September",
-                                   10 : "October",
-                                   11 : "November",
-                                   12 : "December"]
-    var agendaItems : [[String: [String]]] = [["Sunday" : ["a", "b", "c"]],
-                                              ["Monday": ["c", "d", "e"]],
-                                              ["Tuesday" : ["a", "b", "c"]],
-                                              ["Wednesday" : ["a", "b", "c"]],
-                                              ["Thursday" : ["a", "b", "c"]],
-                                              ["Friday" : ["a", "b", "c"]],
-                                              ["Saturday" : ["a", "b", "c"]],
-                                              ["Boomday" : ["a", "b", "c"]],
-                                              ["Boomday" : ["a", "b", "c"]],
-                                              ["Boomday" : ["a", "b", "c"]],
-                                              ["Boomday" : ["a", "b", "c"]],
-                                              ["Boomday" : ["a", "b", "c"]]]
-    
-    func getDay(day: Int) -> String {
-        return days[day]!
+    init() {
+        self.agendaItems[Date()] = ["a", "b", "c"]
     }
     
-    func getMonth(month: Int) -> String {
-        return months[month]!
+    func getAgendaItems(day: Date) -> [String] {
+        let values = agendaItems[day]
+        if (values == nil) {
+            return ["No Events"]
+        } else {
+            return values!
+        }
     }
     
-    func getAgendaItems() -> [[String : [String]]] {
-        return agendaItems
-    }
-    
-    func setAgendaItems(items : [[String: [String]]]) {
-        self.agendaItems = items
+    func setAgendaItems(day: Date, items: [String]) {
+        self.agendaItems[day] = items
     }
 
 
@@ -71,5 +38,15 @@ extension UILabel {
     func createCopy() -> UILabel {
         let archivedData = NSKeyedArchiver.archivedData(withRootObject: self)
         return NSKeyedUnarchiver.unarchiveObject(with: archivedData) as! UILabel
+    }
+}
+
+
+extension Date {
+    func getMonthName() -> String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "MMMM"
+        let strMonth = dateFormatter.string(from: self)
+        return strMonth
     }
 }

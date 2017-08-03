@@ -20,7 +20,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     
     var dates = [Int]()
     var noOfDays = 7
-    var highlightIndex = 0
+    
     var dataModel = DataModel()
     var bounds = CGRect()
     var tableBounds = CGRect()
@@ -29,59 +29,57 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     var currentMonth = 0
     var nextMonth = 0
     var previousMonth = 0
+    var totalDates = [[Date]]()
     
     var headerArray = ["M", "T", "W", "T", "F", "S", "S"]
-       
+    var selected = false
+    
+    var tableCellHeight = 1.0
+    var currentDate: Date = Date()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
-        
-       
-        //mainScrollView.delegate = self
         calendarView.dataSource = self
         calendarView.delegate = self
         agendaView.dataSource = self
         agendaView.delegate = self
         header.delegate = self
         header.dataSource = self
-        
-        navBar.topItem?.title = dataModel.getMonth(month: getDate().month!) + " " + String(getDate().year!)
-        let dayOfMonth = getDate().day!
-        
-        //highlightIndex = 23
-        print(highlightIndex)
-        //populateAgendaItems(agendaItems : &agendaItems)
         bounds = calendarView.frame
         tableBounds = agendaView.frame
-        for i in 0 ..< 70 {
-            dates.append(i + dayOfMonth)
-        }
-        highlightIndex = dates.index(of: dayOfMonth)!
+        let dates = getAllDates(day: Date())
+        totalDates.append(dates)
+        currentDate = Date()
+        navBar.topItem?.title = currentDate.getMonthName()
         
     }
     
-    // This method populates some dummy data. Test later for integrations with calendars
-    func populateAgendaItems(agendaItems: inout [[String]]) {
-       
-    }
     
+    /*
+     The current, previous and next month components are currently not used.
+     Had thought of as a placeholder.
+     */
     func getDate() -> DateComponents {
-        
         let date = Date()
         let calendar = Calendar.current
         let components = calendar.dateComponents([.year, .month, .day], from: date)
-        let interval = calendar.dateInterval(of: .month, for: date)
-        let days = calendar.dateComponents([.day], from: (interval?.start)!, to: (interval?.end)!).day!
-        print(days)
-        
-        //let finalDate = String(describing: day) + ":" + String(describing: month) + ":" + String(describing: year)
         currentMonth = components.month!
         let nextMonthDate = Calendar.current.date(byAdding: .month, value: 1, to: date)
         nextMonth = calendar.dateComponents([.month], from: nextMonthDate!).month!
         let prevMonthDate = Calendar.current.date(byAdding: .month, value: -1, to: date)
         previousMonth = calendar.dateComponents([.month], from: prevMonthDate!).month!
         return components
-        
+    }
+    
+    func getAllDates(day: Date) -> [Date] {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: day)
+        let dayOfMonth = calendar.component(.day, from: today)
+        let days = calendar.range(of: .day, in: .month, for: today)!
+        let dayrange = (days.lowerBound ..< days.upperBound)
+            .flatMap { calendar.date(byAdding: .day, value: $0 - dayOfMonth, to: today) }
+            
+        return dayrange
     }
     
     override var prefersStatusBarHidden: Bool {
@@ -95,35 +93,41 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
-        print("In table views")
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return dataModel.getAgendaItems().count
+        //var count = dataModel.getAgendaItems(day: currentDate).count
+        return 7
+            
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if (collectionView == self.header) {
             return headerArray.count
         } else {
-             return dates.count
+            let flattenedDates = totalDates.flatMap { $0 }
+            return flattenedDates.count
         }
-       
         
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if (collectionView == self.calendarView) {
             let cell = calendarView.dequeueReusableCell(withReuseIdentifier: "reuseCalendarCell", for: indexPath) as! CalendarCellCollectionViewCell
-            let date = dates[indexPath.row]
-            if(indexPath.row == highlightIndex) {
-                cell.day_label.backgroundColor = calendarViewCellColor
-                //TODO - Establish a network call to get the agenda for the day
-                dataModel.setAgendaItems(items: [["Sunday" : ["new", "new1", "new2"]]])
-                agendaView.reloadData()
-
+            let row = indexPath.row
+            let date = totalDates.flatMap { $0 }[row]
+            let dateFormatter = DateFormatter()
+            dateFormatter.timeStyle = DateFormatter.Style.none
+            dateFormatter.dateStyle = DateFormatter.Style.short
+            let strDate = dateFormatter.string(from: date)
+            let strCurrentDate = dateFormatter.string(from: currentDate)
+            if(strDate == strCurrentDate) {
+                    cell.day_label.backgroundColor = calendarViewCellColor
+                    //TODO - Establish a network call to get the agenda for the day
             }
-            cell.day_label.text = String(date)
+            
+            let day = Calendar.current.component(.day, from: date)
+            cell.day_label.text = String(day)
             return cell
         } else {
             let cell = header.dequeueReusableCell(withReuseIdentifier: "reuseHeaderCell", for: indexPath) as! HeaderCollectionViewCell
@@ -134,18 +138,23 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        
         let cell = calendarView.cellForItem(at: indexPath) as! CalendarCellCollectionViewCell
         cell.day_label.backgroundColor = calendarViewCellColor
-        //let newDates = dates.map { IndexPath(row: $0, section: 0) }
-        //calendarView.reloadItems(at: newDates)
+        let date = totalDates.flatMap { $0 } [indexPath.row]
+        dataModel.setAgendaItems(day: date, items: ["adsfs", "face", "new", "abs"])
+        agendaView.reloadData()
+        var flattenedDates = totalDates.flatMap { $0 }
+        var ind = indexPath.row
+        flattenedDates.remove(at: ind)
+        let indexPaths = flattenedDates.map({IndexPath(row: flattenedDates.index(of: $0)!, section:0)})
+        calendarView.reloadItems(at: indexPaths)
     }
-    
-    
-    
-    /**
-     Updates the table view when a collectionview cell/date is selected
-    */
-    func updateTableView() {
+    /*
+     This is a placeholder function to scroll the tableview agneda row to top when a particular
+     day is selected
+     */
+    func getCellIndexFromTableView(date: Date) {
         
     }
     
@@ -156,17 +165,28 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = agendaView.dequeueReusableCell(withIdentifier: "agendaItem") as! AgendaTableViewCell
         let i = indexPath.row
-        let agenda = dataModel.getAgendaItems()[i]
-        cell.dayMonthLabel.text = agenda.keys.first!
-        let details = dataModel.getAgendaItems()[i].values
-        
-        // Unneccesaary O(n^2) loop. Optimize
-        for day in details {
-            for indDetails in day {
-                //var newLabel = cel
+        let date = totalDates.flatMap { $0 }[i]
+        var agendaDetails = dataModel.getAgendaItems(day: date)
+        cell.dayMonthLabel.text = date.description
+        var count:CGFloat = 1
+        for ind in agendaDetails {
+            if (count > 1) {
+                let agenda = cell.agendaDetails.createCopy()
                 
-                cell.agendaDetails.text?.append(indDetails)
+                tableCellHeight = Double(cell.agendaDetails.frame.origin.y * count)
+                agenda.frame = CGRect(x: cell.agendaDetails.frame.origin.x,
+                                          y: cell.agendaDetails.frame.origin.y * count,
+                                          width: cell.agendaDetails.frame.size.width,
+                                          height: cell.agendaDetails.frame.size.height)
+                
+                agenda.text = ind
+                cell.addSubview(agenda)
+                cell.sizeToFit()
+            } else {
+                tableCellHeight = Double(cell.agendaDetails.frame.size.height * 2)
+                cell.agendaDetails.text = ind
             }
+            count += 1
         }
         return cell
         
@@ -178,13 +198,18 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         let totalSpace = flowLayout.sectionInset.left
             + flowLayout.sectionInset.right
             + (flowLayout.minimumInteritemSpacing * CGFloat(noOfDays))
-        print(collectionView.bounds.width)
+        
         let size = Int((collectionView.bounds.width - totalSpace) / CGFloat(noOfDays))
         return CGSize(width: size, height: size)
     }
     
     func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
         if scrollView.isKind(of: UICollectionView.self) {
+            // Get the first date of the current month to get previous and next months
+            let firstDay = Calendar.current.date(from: Calendar.current.dateComponents([.year, .month], from: Calendar.current.startOfDay(for: Date())))!
+            let nextMonth = Calendar.current.date(byAdding: .month, value: 1, to: firstDay)
+            let days = getAllDates(day: nextMonth!)
+            totalDates.append(days)
             //Resize the collectionview height
             let newCalendarSize = CGSize(width: calendarView.collectionViewLayout.collectionViewContentSize.width, height: bounds.size.height * 2.5)
             calendarView.frame = CGRect(origin: bounds.origin, size: newCalendarSize)
@@ -192,13 +217,23 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             // Change the hardcoded 120
             agendaView.frame = CGRect(x: tableBounds.origin.x, y: tableBounds.origin.y + 120,
                                       width: agendaView.contentSize.width, height: tableBounds.height)
+            calendarView.reloadData()
     
         }
-        if scrollView.isKind(of: UITableView.self) {
-            
-        }
-    
+        
     }
+    
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        if scrollView.isKind(of: UICollectionView.self) {
+            NSLog("Scroll view height: %f", scrollView.contentOffset.y)
+            NSLog("Content height %f", scrollView.contentSize.height)
+        }
+    }
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return CGFloat(tableCellHeight)
+    }
+    
 
 }
 
