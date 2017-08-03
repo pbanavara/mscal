@@ -207,8 +207,6 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = agendaView.dequeueReusableCell(withIdentifier: "agendaItem") as! AgendaTableViewCell
         let i = indexPath.row
-        let date = totalDates.flatMap { $0 }[i]
-        //let agendaDetails = dataModel.getAgendaItems(day: date)
         let agendaDetails = deque.getAtIndex(ind: i)
         let cellDate = agendaDetails?.keys.first!
         
@@ -270,6 +268,16 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             calendarView.reloadData()
     
         }
+        
+    }
+    
+    
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return CGFloat(tableCellHeight)
+    }
+    
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
         if scrollView.isKind(of: UITableView.self) {
             let translation = scrollView.panGestureRecognizer.translation(in: scrollView.superview!)
             if translation.y < 0 {
@@ -291,19 +299,11 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
                 deque.enqueueFront([prevDay: items])
                 deque.dequeueBackRemove()
                 agendaView.reloadData()
-
+                
             }
         }
+
         
-    }
-    
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return CGFloat(tableCellHeight)
-    }
-    
-    func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        if scrollView.isKind(of: UITableView.self) {
-                    }
     }
     
     
