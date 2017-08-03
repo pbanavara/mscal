@@ -274,20 +274,22 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             let translation = scrollView.panGestureRecognizer.translation(in: scrollView.superview!)
             if translation.y < 0 {
                 // swipes from top to bottom of screen -> down
-                NSLog("Table view scrolled down")
+                NSLog("Table view scrolled Up")
                 let element = deque.dequeueBack()
                 let day = element?.keys.first!
                 let nextDay = Calendar.current.date(byAdding: .day, value: 1, to: day!)!
                 let items = dataModel.getAgendaItems(day: nextDay)
                 deque.enqueue([nextDay: items])
+                deque.dequeueRemove()
                 agendaView.reloadData()
             } else {
-                NSLog("Table view scrolled up")
+                NSLog("Table view scrolled Down")
                 let element = deque.dequeue()
                 let day = element?.keys.first!
                 let prevDay = Calendar.current.date(byAdding: .day, value: -1, to: day!)!
                 let items = dataModel.getAgendaItems(day: prevDay)
                 deque.enqueueFront([prevDay: items])
+                deque.dequeueBackRemove()
                 agendaView.reloadData()
 
             }

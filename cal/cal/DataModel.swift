@@ -83,6 +83,16 @@ public struct Deque<T> {
         }
     }
     
+    public mutating func dequeueRemove() -> T? {
+        if isEmpty {
+            return nil
+        } else {
+            return array.removeFirst()
+            //return array.first
+        }
+    }
+
+    
     public mutating func dequeueBack() -> T? {
         if isEmpty {
             return nil
@@ -91,6 +101,16 @@ public struct Deque<T> {
             return array.last
         }
     }
+    
+    public mutating func dequeueBackRemove() -> T? {
+        if isEmpty {
+            return nil
+        } else {
+            return array.removeLast()
+            //return array.last
+        }
+    }
+    
     
     public func peekFront() -> T? {
         return array.first
