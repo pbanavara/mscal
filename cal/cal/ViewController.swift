@@ -16,7 +16,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     
     @IBOutlet weak var header: UICollectionView!
     //Constants
-    let calendarViewCellColor = UIColor.blue
+    let calendarViewCellColor = UIColor.appleBlue()
     
     var dates = [Int]()
     var noOfDays = 7
@@ -161,30 +161,25 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         
         let cell = calendarView.cellForItem(at: indexPath) as! CalendarCellCollectionViewCell
         //cell.day_label.backgroundColor = calendarViewCellColor
-        let date = totalDates.flatMap { $0 } [indexPath.row]
-        var incrDate = Calendar.current.date(byAdding: .day, value: 1, to: date)!
+        var date = totalDates.flatMap { $0 } [indexPath.row]
+        //var incrDate = Calendar.current.date(byAdding: .day, value: 1, to: date)!
         dataModel.setAgendaItems(day: date, items: ["adsfs", "face", "new", "abs"])
         deque.enqueueFront([date: ["adsfs", "face", "new", "abs"]])
         agendaView.reloadData()
         var flattenedDates = totalDates.flatMap { $0 }
         let ind = indexPath.row
         flattenedDates.remove(at: ind)
-        //let indexPaths = flattenedDates.map({IndexPath(row: flattenedDates.index(of: $0)!, section:0)})
-        //calendarView.reloadItems(at: indexPaths)
         cell.day_label.backgroundColor = calendarViewCellColor
         
-        //hack
-        for _ in 0..<dequeCounter{
-            deque.dequeue()
-        }
-        dequeCounter += 1
+        //hack for some reason on every iteration one element in the dequeue is not deleted
+        deque.empty()
         
-        for _ in 0..<8 {
-            let newItem = dataModel.getAgendaItems(day: incrDate)
-            deque.enqueue([incrDate: newItem])
-            let newDate = Calendar.current.date(byAdding: .day, value: 1, to: incrDate)
-            incrDate = newDate!
-            
+        // Always maintain 8 elements in the dequeue since we are storing all the agenda items in a
+        // separate dictionary
+        for _ in 0..<7 {
+            let newItem = dataModel.getAgendaItems(day: date)
+            deque.enqueue([date: newItem])
+            date = Calendar.current.date(byAdding: .day, value: 1, to: date)!
         }
     
         agendaView.reloadData()
@@ -250,7 +245,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             guard let cViewCell = calendarView.cellForItem(at: cViewIndexPath) as? CalendarCellCollectionViewCell else {
                 return cell
             }
-            cViewCell.day_label.backgroundColor = UIColor.blue
+            cViewCell.day_label.backgroundColor = UIColor.appleBlue()
         }
         return cell
         

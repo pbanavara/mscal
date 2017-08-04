@@ -74,6 +74,9 @@ public struct Deque<T> {
         }
     }
 
+    public mutating func empty() {
+        array.removeAll()
+    }
     
     public mutating func dequeueBack() -> T? {
         if isEmpty {
