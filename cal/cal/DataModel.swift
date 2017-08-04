@@ -36,24 +36,6 @@ class DataModel {
 
 }
 
-// This is perhaps at the wrong place. Put it in the correct file
-extension UILabel {
-    func createCopy() -> UILabel {
-        let archivedData = NSKeyedArchiver.archivedData(withRootObject: self)
-        return NSKeyedUnarchiver.unarchiveObject(with: archivedData) as! UILabel
-    }
-}
-
-
-extension Date {
-    func getMonthName() -> String {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "MMMM yyyy"
-        let strMonth = dateFormatter.string(from: self)
-        return strMonth
-    }
-}
-
 //Deque for the tableview implementation
 public struct Deque<T> {
     private var array = [T]()

@@ -130,17 +130,11 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             let cell = calendarView.dequeueReusableCell(withReuseIdentifier: "reuseCalendarCell", for: indexPath) as! CalendarCellCollectionViewCell
             let row = indexPath.row
             let date = totalDates.flatMap { $0 }[row]
-            
-            let dateFormatter = DateFormatter()
-            dateFormatter.timeStyle = DateFormatter.Style.none
-            dateFormatter.dateStyle = DateFormatter.Style.short
-            let strDate = dateFormatter.string(from: date)
-            let strCurrentDate = dateFormatter.string(from: currentDate)
+            let strDate = convertDatesToString(input: date, isShort: true)
+            let strCurrentDate = convertDatesToString(input: currentDate, isShort: true)
             if(strDate == strCurrentDate) {
                 cell.day_label.backgroundColor = calendarViewCellColor
-                
             }
-            
             let day = Calendar.current.component(.day, from: date)
             cell.day_label.text = String(day)
             return cell
@@ -153,7 +147,6 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     }
     
     private func calcuateDaysBetweenTwoDates(start: Date, end: Date) -> Int {
-        
         let currentCalendar = Calendar.current
         guard let start = currentCalendar.ordinality(of: .day, in: .era, for: start) else {
             return 0
@@ -204,16 +197,25 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         
     }
     
+    func convertDatesToString(input: Date, isShort: Bool) -> String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.timeStyle = DateFormatter.Style.none
+        if (!isShort) {
+            dateFormatter.dateStyle = DateFormatter.Style.full
+        } else {
+            dateFormatter.dateStyle = DateFormatter.Style.short
+        }
+        
+        return dateFormatter.string(from: input)
+    }
+    
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = agendaView.dequeueReusableCell(withIdentifier: "agendaItem") as! AgendaTableViewCell
         let i = indexPath.row
         let agendaDetails = deque.getAtIndex(ind: i)
         let cellDate = agendaDetails?.keys.first!
         
-        let dateFormatter = DateFormatter()
-        dateFormatter.timeStyle = DateFormatter.Style.none
-        dateFormatter.dateStyle = DateFormatter.Style.full
-        let strDate = dateFormatter.string(from: cellDate!)
+        let strDate = convertDatesToString(input: cellDate!, isShort: false)
 
         cell.dayMonthLabel.text = strDate
         var count:CGFloat = 1
@@ -235,6 +237,20 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
                 cell.agendaDetails.text = ind
             }
             count += 1
+        }
+        
+        //CollectionView update when a cell reaches the top row of the UITable
+        if (i == 0) {
+            let date = convertDatesToString(input: (deque.getAtIndex(ind: i)?.keys.first)!, isShort: true)
+            let flattenedDates = totalDates.flatMap { $0 }.map { convertDatesToString(input: $0, isShort: true) }
+            guard let cViewIndex = flattenedDates.index(of: date) else {
+                return cell
+            }
+            let cViewIndexPath = IndexPath(item: cViewIndex, section: 0)
+            guard let cViewCell = calendarView.cellForItem(at: cViewIndexPath) as? CalendarCellCollectionViewCell else {
+                return cell
+            }
+            cViewCell.day_label.backgroundColor = UIColor.blue
         }
         return cell
         
@@ -270,8 +286,6 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         }
         
     }
-    
-    
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return CGFloat(tableCellHeight)
