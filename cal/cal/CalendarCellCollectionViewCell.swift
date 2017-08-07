@@ -11,4 +11,15 @@ import UIKit
 class CalendarCellCollectionViewCell: UICollectionViewCell {
     
     @IBOutlet weak var day_label: UILabel!
+    
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        
+        contentView.backgroundColor = UIColor.clear
+        day_label?.text = nil
+    }
+    
+    func setBackgroundColor() {
+        contentView.backgroundColor = UIColor.appleBlue()
+    }
 }

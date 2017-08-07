@@ -9,7 +9,7 @@
 import UIKit
 
 class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSource,
-                        UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
+UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
     @IBOutlet weak var navBar: UINavigationBar!
     @IBOutlet weak var calendarView: UICollectionView!
     @IBOutlet weak var agendaView: UITableView!
@@ -64,13 +64,14 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         navBar.topItem?.title = currentDate.getMonthName()
         populateInitialTableView()
         
+        
     }
     
     func addMonth(day: Date, incr: Int) {
         let previousMonth = calendar.date(byAdding: .month, value: incr, to: Date())
         let monthName = previousMonth?.getMonthName()
         allDates[monthName!] = getAllDates(day: previousMonth!)
-
+        
     }
     
     
@@ -82,7 +83,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             let aiForDay = dataModel.getAgendaItems(day: date)
             deque.enqueue([date: aiForDay])
         }
-            
+        
     }
     
     /*
@@ -101,7 +102,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         let days = calendar.range(of: .day, in: .month, for: today)!
         let dayrange = (days.lowerBound ..< days.upperBound)
             .flatMap { calendar.date(byAdding: .day, value: $0 - dayOfMonth, to: today) }
-            
+        
         return dayrange
     }
     
@@ -121,7 +122,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         //var count = dataModel.getAgendaItems(day: currentDate).count
         return 7
-            
+        
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -154,7 +155,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             cell.cellLabel.text = headerArray[indexPath.row]
             return cell
         }
-    
+        
     }
     
     /*
@@ -219,7 +220,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             }
         default: break
             //Do nothing
-
+            
         }
     }
     
@@ -233,11 +234,12 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         //cell.day_label.backgroundColor = calendarViewCellColor
         //var date = totalDates.flatMap { $0 } [indexPath.row]
         var date = totalDates[indexPath.row]
+        
         //var incrDate = Calendar.current.date(byAdding: .day, value: 1, to: date)!
         dataModel.setAgendaItems(day: date, items: ["adsfs", "face", "new", "abs"])
         deque.enqueueFront([date: ["adsfs", "face", "new", "abs"]])
         agendaView.reloadData()
-        cell.day_label.backgroundColor = calendarViewCellColor
+        cell.setBackgroundColor()
         
         deque.empty()
         
@@ -248,12 +250,12 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             deque.enqueue([date: newItem])
             date = calendar.date(byAdding: .day, value: 1, to: date)!
         }
-    
+        
         agendaView.reloadData()
         
     }
     
-   
+    
     
     func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
         // Scroll up the calendar to the appropriate day
@@ -279,7 +281,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         let cellDate = agendaDetails?.keys.first!
         
         let strDate = convertDatesToString(input: cellDate!, isShort: false)
-
+        
         cell.dayMonthLabel.text = strDate
         var count:CGFloat = 1
         for ind in agendaDetails![cellDate!]! {
@@ -288,9 +290,9 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
                 
                 tableCellHeight = Double(cell.agendaDetails.frame.origin.y * count)
                 agenda.frame = CGRect(x: cell.agendaDetails.frame.origin.x,
-                                          y: cell.agendaDetails.frame.origin.y * count,
-                                          width: cell.agendaDetails.frame.size.width,
-                                          height: cell.agendaDetails.frame.size.height)
+                                      y: cell.agendaDetails.frame.origin.y * count,
+                                      width: cell.agendaDetails.frame.size.width,
+                                      height: cell.agendaDetails.frame.size.height)
                 
                 agenda.text = ind
                 cell.addSubview(agenda)
@@ -304,7 +306,12 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         
         //CollectionView update when a cell reaches the top row of the UITable
         if (i == 0) {
-            let date = convertDatesToString(input: (deque.getAtIndex(ind: i)?.keys.first)!, isShort: true)
+            let dateRaw = deque.getAtIndex(ind: i)?.keys.first!
+            let date = convertDatesToString(input: dateRaw!, isShort: true)
+            if (dateRaw?.getMonthName() != currentDate.getMonthName()) {
+                totalDates = getAllDates(day: dateRaw!)
+                calendarView.reloadData()
+            }
             let flattenedDates = totalDates.map { convertDatesToString(input: $0, isShort: true) }
             guard let cViewIndex = flattenedDates.index(of: date) else {
                 return cell
@@ -313,12 +320,15 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             guard let cViewCell = calendarView.cellForItem(at: cViewIndexPath) as? CalendarCellCollectionViewCell else {
                 return cell
             }
-            cViewCell.day_label.backgroundColor = UIColor.appleBlue()
+            cViewCell.setBackgroundColor()
+            //calendarView.reloadData()
+            NSLog("Collectionview index", String(cViewIndex))
+            
         }
         return cell
         
     }
-
+    
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         
@@ -326,16 +336,39 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         let totalSpace = flowLayout.sectionInset.left
             + flowLayout.sectionInset.right
             + (flowLayout.minimumInteritemSpacing * CGFloat(noOfDays))
-        print(collectionView.bounds.width)
+        
         
         let size = Int((collectionView.bounds.width - totalSpace) / CGFloat(noOfDays))
         return CGSize(width: size, height: size)
     }
     
+    
+    
     func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
         if scrollView.isKind(of: UICollectionView.self) {
             // Get the first date of the current month to get previous and next months
             //Resize the collectionview height
+            
+            let translation = scrollView.panGestureRecognizer.translation(in: scrollView.superview!)
+            if translation.y < 0 {
+                let firstDay = currentDate.getFirstDayOfMonth()
+                currentDate = calendar.date(byAdding: .month, value: 1, to: firstDay)!
+                let days = getAllDates(day: currentDate)
+                days.forEach( {totalDates.append($0)} )
+                navBar.topItem?.title = currentDate.getMonthName()
+                
+            } else if translation.y >= 0 {
+                NSLog("Scrolled up")
+                let firstDay = currentDate.getFirstDayOfMonth()
+                currentDate = calendar.date(byAdding: .month, value: -1, to: firstDay)!
+                let days = getAllDates(day: currentDate).reversed()
+                days.forEach( {totalDates.insert($0, at: 0)} )
+                print(currentDate.getMonthName())
+                //currentDate = firstDay
+                navBar.topItem?.title = currentDate.getMonthName()
+                
+            }
+            
             let newCalendarSize = CGSize(width: calendarView.collectionViewLayout.collectionViewContentSize.width, height: bounds.size.height * 2.5)
             calendarView.frame = CGRect(origin: bounds.origin, size: newCalendarSize)
             // Resize the tableview height according to the new collectionview height
@@ -343,8 +376,8 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             agendaView.frame = CGRect(x: tableBounds.origin.x, y: tableBounds.origin.y + 120,
                                       width: agendaView.contentSize.width, height: tableBounds.height)
             calendarView.reloadData()
-    
-        } else {
+            
+        } else if scrollView.isKind(of: UITableView.self) {
             let newCalendarSize = CGSize(width: calendarView.collectionViewLayout.collectionViewContentSize.width, height: bounds.size.height)
             calendarView.frame = CGRect(origin: bounds.origin, size: newCalendarSize)
             // Resize the tableview height according to the new collectionview height
@@ -352,26 +385,11 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             agendaView.frame = CGRect(x: tableBounds.origin.x, y: tableBounds.origin.y,
                                       width: agendaView.contentSize.width, height: tableBounds.height)
             calendarView.reloadData()
-
             
-        }
-        
-    }
-    
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return CGFloat(tableCellHeight)
-    }
-    
-    func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
-        print(velocity)
-    }
-    
-    func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        if scrollView.isKind(of: UITableView.self) {
             let translation = scrollView.panGestureRecognizer.translation(in: scrollView.superview!)
             if translation.y < 0 {
                 // swipes from top to bottom of screen -> down
-               // NSLog("Table view scrolled Up")
+                // NSLog("Table view scrolled Up")
                 let element = deque.dequeueBack()
                 let day = element?.keys.first!
                 let nextDay = calendar.date(byAdding: .day, value: 1, to: day!)!
@@ -380,7 +398,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
                 deque.dequeueRemove()
                 agendaView.reloadData()
             } else {
-               // NSLog("Table view scrolled Down")
+                // NSLog("Table view scrolled Down")
                 let element = deque.dequeue()
                 let day = element?.keys.first!
                 let prevDay = calendar.date(byAdding: .day, value: -1, to: day!)!
@@ -390,23 +408,54 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
                 agendaView.reloadData()
                 
             }
-        } else if scrollView.isKind(of: UICollectionView.self) {
-            let translation = scrollView.panGestureRecognizer.translation(in: scrollView.superview!)
-            if translation.y < 0 {
-                let firstDay = currentDate.getFirstDayOfMonth()
-                let nextMonth = calendar.date(byAdding: .month, value: 1, to: firstDay)
-                let days = getAllDates(day: nextMonth!)
-                days.forEach( {totalDates.append($0)} )
-
-            }
-            
-            
         }
+    
+}
 
-        
-    }
+func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+    return CGFloat(tableCellHeight)
+}
+
+func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
+    print(velocity)
+    
+}
+
+func scrollViewDidScroll(_ scrollView: UIScrollView) {
+    
+    /*
+     
+     if scrollView.isKind(of: UITableView.self) {
+     let translation = scrollView.panGestureRecognizer.translation(in: scrollView.superview!)
+     if translation.y < 0 {
+     // swipes from top to bottom of screen -> down
+     // NSLog("Table view scrolled Up")
+     let element = deque.dequeueBack()
+     let day = element?.keys.first!
+     let nextDay = calendar.date(byAdding: .day, value: 1, to: day!)!
+     let items = dataModel.getAgendaItems(day: nextDay)
+     deque.enqueue([nextDay: items])
+     deque.dequeueRemove()
+     agendaView.reloadData()
+     } else {
+     // NSLog("Table view scrolled Down")
+     let element = deque.dequeue()
+     let day = element?.keys.first!
+     let prevDay = calendar.date(byAdding: .day, value: -1, to: day!)!
+     let items = dataModel.getAgendaItems(day: prevDay)
+     deque.enqueueFront([prevDay: items])
+     deque.dequeueBackRemove()
+     agendaView.reloadData()
+     
+     }
+     }
+     */
     
     
+}
+
+
+
 
 }
 
