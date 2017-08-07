@@ -29,7 +29,8 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     var currentMonth = 0
     
     
-    var totalDates = [[Date]]()
+    //var totalDates = [[Date]]()
+    var totalDates = [Date]()
     var allDates = [String: [Date]]()
     
     var headerArray = ["M", "T", "W", "T", "F", "S", "S"]
@@ -55,9 +56,8 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         bounds = calendarView.frame
         tableBounds = agendaView.frame
         let dates = getAllDates(day: Date())
-        totalDates.append(dates)
-        allDates[currMonth] = dates
-        
+        //totalDates.append(dates)
+        dates.forEach({ totalDates.append($0) })
         currentDate = Date()
         assignCalendarCellAsPerDate(date: currentDate.getFirstDayOfMonth())
         
@@ -128,8 +128,9 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         if (collectionView == self.header) {
             return headerArray.count
         } else {
-            let flattenedDates = totalDates.flatMap { $0 }
-            return flattenedDates.count
+            //let flattenedDates = totalDates.flatMap { $0 }
+            //return flattenedDates.count
+            return totalDates.count
         }
         
     }
@@ -138,7 +139,8 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         if (collectionView == self.calendarView) {
             let cell = calendarView.dequeueReusableCell(withReuseIdentifier: "reuseCalendarCell", for: indexPath) as! CalendarCellCollectionViewCell
             let row = indexPath.row
-            let date = totalDates.flatMap { $0 }[row]
+            //let date = totalDates.flatMap { $0 }[row]
+            let date = totalDates[row]
             let strDate = convertDatesToString(input: date, isShort: true)
             let strCurrentDate = convertDatesToString(input: currentDate, isShort: true)
             if(strDate == strCurrentDate) {
@@ -168,7 +170,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             // Sunday
             for _ in 0..<6 {
                 let prevDay = calendar.date(byAdding: .day, value: -1, to: tempDate)!
-                totalDates[0].insert(prevDay, at: 0)
+                totalDates.insert(prevDay, at: 0)
                 tempDate = prevDay
             }
         case 2:
@@ -179,35 +181,40 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             //Tuesday
             for _ in 0..<1 {
                 let prevDay = calendar.date(byAdding: .day, value: -1, to: tempDate)!
-                totalDates[0].insert(prevDay, at: 0)
+                //totalDates[0].insert(prevDay, at: 0)
+                totalDates.insert(prevDay, at: 0)
                 tempDate = prevDay
             }
         case 4:
             // Wednesday
             for _ in 0..<2 {
                 let prevDay = calendar.date(byAdding: .day, value: -1, to: tempDate)!
-                totalDates[0].insert(prevDay, at: 0)
+                //totalDates[0].insert(prevDay, at: 0)
+                totalDates.insert(prevDay, at: 0)
                 tempDate = prevDay
             }
         case 5:
             //Thursday
             for _ in 0..<3 {
                 let prevDay = calendar.date(byAdding: .day, value: -1, to: tempDate)!
-                totalDates[0].insert(prevDay, at: 0)
+                //totalDates[0].insert(prevDay, at: 0)
+                totalDates.insert(prevDay, at: 0)
                 tempDate = prevDay
             }
         case 6:
             //Friday
             for _ in 0..<4 {
                 let prevDay = calendar.date(byAdding: .day, value: -1, to: tempDate)!
-                totalDates[0].insert(prevDay, at: 0)
+                //totalDates[0].insert(prevDay, at: 0)
+                totalDates.insert(prevDay, at: 0)
                 tempDate = prevDay
             }
         case 7:
             //Saturday
             for _ in 0..<5 {
                 let prevDay = calendar.date(byAdding: .day, value: -1, to: tempDate)!
-                totalDates[0].insert(prevDay, at: 0)
+                //totalDates[0].insert(prevDay, at: 0)
+                totalDates.insert(prevDay, at: 0)
                 tempDate = prevDay
             }
         default: break
@@ -224,17 +231,14 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         
         let cell = calendarView.cellForItem(at: indexPath) as! CalendarCellCollectionViewCell
         //cell.day_label.backgroundColor = calendarViewCellColor
-        var date = totalDates.flatMap { $0 } [indexPath.row]
+        //var date = totalDates.flatMap { $0 } [indexPath.row]
+        var date = totalDates[indexPath.row]
         //var incrDate = Calendar.current.date(byAdding: .day, value: 1, to: date)!
         dataModel.setAgendaItems(day: date, items: ["adsfs", "face", "new", "abs"])
         deque.enqueueFront([date: ["adsfs", "face", "new", "abs"]])
         agendaView.reloadData()
-        var flattenedDates = totalDates.flatMap { $0 }
-        let ind = indexPath.row
-        flattenedDates.remove(at: ind)
         cell.day_label.backgroundColor = calendarViewCellColor
         
-        //hack for some reason on every iteration one element in the dequeue is not deleted
         deque.empty()
         
         // Always maintain 8 elements in the dequeue since we are storing all the agenda items in a
@@ -301,7 +305,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         //CollectionView update when a cell reaches the top row of the UITable
         if (i == 0) {
             let date = convertDatesToString(input: (deque.getAtIndex(ind: i)?.keys.first)!, isShort: true)
-            let flattenedDates = totalDates.flatMap { $0 }.map { convertDatesToString(input: $0, isShort: true) }
+            let flattenedDates = totalDates.map { convertDatesToString(input: $0, isShort: true) }
             guard let cViewIndex = flattenedDates.index(of: date) else {
                 return cell
             }
@@ -392,7 +396,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
                 let firstDay = currentDate.getFirstDayOfMonth()
                 let nextMonth = calendar.date(byAdding: .month, value: 1, to: firstDay)
                 let days = getAllDates(day: nextMonth!)
-                totalDates.append(days)
+                days.forEach( {totalDates.append($0)} )
 
             }
             
