@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="12121" systemVersion="16F73" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="12121" systemVersion="16G29" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
     <device id="retina4_0" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
@@ -105,9 +105,8 @@
                                             </collectionViewCell>
                                         </cells>
                                     </collectionView>
-                                    <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="asw-J3-a6I">
+                                    <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="asw-J3-a6I">
                                         <rect key="frame" x="0.0" y="44" width="288" height="28"/>
-                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                         <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="0.0" minimumInteritemSpacing="0.0" id="z4Q-2S-QsA">
                                             <size key="itemSize" width="34" height="29"/>
@@ -143,6 +142,7 @@
                                     <constraint firstItem="3x6-4A-Z1K" firstAttribute="bottom" secondItem="V2w-8E-gPm" secondAttribute="bottomMargin" constant="8" id="1CX-kF-KBq"/>
                                     <constraint firstItem="DaC-Mr-IyZ" firstAttribute="leading" secondItem="V2w-8E-gPm" secondAttribute="leadingMargin" constant="-8" id="69L-t7-f2y"/>
                                     <constraint firstItem="DaC-Mr-IyZ" firstAttribute="leading" secondItem="3x6-4A-Z1K" secondAttribute="leading" id="73y-zX-aQ4"/>
+                                    <constraint firstItem="DaC-Mr-IyZ" firstAttribute="top" secondItem="asw-J3-a6I" secondAttribute="bottom" constant="1" id="8MF-ce-mw2"/>
                                     <constraint firstItem="DaC-Mr-IyZ" firstAttribute="trailing" secondItem="3x6-4A-Z1K" secondAttribute="trailing" id="Upr-a0-Bac"/>
                                     <constraint firstItem="DaC-Mr-IyZ" firstAttribute="trailing" secondItem="V2w-8E-gPm" secondAttribute="trailingMargin" constant="8" id="XJG-QD-At5"/>
                                     <constraint firstItem="3x6-4A-Z1K" firstAttribute="top" secondItem="DaC-Mr-IyZ" secondAttribute="bottom" constant="8" id="dNg-X6-YdC"/>
@@ -154,9 +154,12 @@
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
                             <constraint firstItem="V2w-8E-gPm" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" id="46d-5c-6D4"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="asw-J3-a6I" secondAttribute="trailing" id="4pW-bq-KAT"/>
+                            <constraint firstAttribute="leadingMargin" secondItem="asw-J3-a6I" secondAttribute="leading" id="7Gj-il-NRW"/>
                             <constraint firstAttribute="bottom" secondItem="V2w-8E-gPm" secondAttribute="bottom" constant="20" symbolic="YES" id="BKr-dw-GMy"/>
                             <constraint firstItem="V2w-8E-gPm" firstAttribute="trailing" secondItem="8bC-Xf-vdC" secondAttribute="trailingMargin" id="EOX-4g-MjW"/>
                             <constraint firstItem="V2w-8E-gPm" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="8" symbolic="YES" id="kPV-Ib-fwX"/>
+                            <constraint firstItem="asw-J3-a6I" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="52" id="opc-LC-bf4"/>
                         </constraints>
                     </view>
                     <connections>

@@ -27,9 +27,10 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     
     //calendar variables
     var currentMonth = 0
-    var nextMonth = 0
-    var previousMonth = 0
+    
+    
     var totalDates = [[Date]]()
+    var allDates = [String: [Date]]()
     
     var headerArray = ["M", "T", "W", "T", "F", "S", "S"]
     var selected = false
@@ -40,8 +41,11 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     var dequeCounter = 8
     var lastContentOffset: CGPoint = CGPoint()
     
+    var calendar = Calendar.current
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        calendar.timeZone = TimeZone.current
         calendarView.dataSource = self
         calendarView.delegate = self
         agendaView.dataSource = self
@@ -52,17 +56,29 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         tableBounds = agendaView.frame
         let dates = getAllDates(day: Date())
         totalDates.append(dates)
+        allDates[currMonth] = dates
+        
         currentDate = Date()
+        assignCalendarCellAsPerDate(date: currentDate.getFirstDayOfMonth())
+        
         navBar.topItem?.title = currentDate.getMonthName()
         populateInitialTableView()
         
     }
     
+    func addMonth(day: Date, incr: Int) {
+        let previousMonth = calendar.date(byAdding: .month, value: incr, to: Date())
+        let monthName = previousMonth?.getMonthName()
+        allDates[monthName!] = getAllDates(day: previousMonth!)
+
+    }
+    
+    
     func populateInitialTableView() {
         //Get agenda items for a week starting with the current day
         
         for i in 0..<7 {
-            let date = Calendar.current.date(byAdding: .day, value: i, to: currentDate)!
+            let date = calendar.date(byAdding: .day, value: i, to: currentDate)!
             let aiForDay = dataModel.getAgendaItems(day: date)
             deque.enqueue([date: aiForDay])
         }
@@ -75,22 +91,15 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
      */
     func getDate() -> DateComponents {
         let date = Date()
-        let calendar = Calendar.current
         let components = calendar.dateComponents([.year, .month, .day], from: date)
-        currentMonth = components.month!
-        let nextMonthDate = Calendar.current.date(byAdding: .month, value: 1, to: date)
-        nextMonth = calendar.dateComponents([.month], from: nextMonthDate!).month!
-        let prevMonthDate = Calendar.current.date(byAdding: .month, value: -1, to: date)
-        previousMonth = calendar.dateComponents([.month], from: prevMonthDate!).month!
         return components
     }
     
     func getAllDates(day: Date) -> [Date] {
-        let calendar = Calendar.current
         let today = calendar.startOfDay(for: day)
         let dayOfMonth = calendar.component(.day, from: today)
         let days = calendar.range(of: .day, in: .month, for: today)!
-        let dayrange = (days.lowerBound+1 ..< days.upperBound)
+        let dayrange = (days.lowerBound ..< days.upperBound)
             .flatMap { calendar.date(byAdding: .day, value: $0 - dayOfMonth, to: today) }
             
         return dayrange
@@ -133,9 +142,9 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             let strDate = convertDatesToString(input: date, isShort: true)
             let strCurrentDate = convertDatesToString(input: currentDate, isShort: true)
             if(strDate == strCurrentDate) {
-                cell.day_label.backgroundColor = calendarViewCellColor
+                //cell.day_label.backgroundColor = calendarViewCellColor
             }
-            let day = Calendar.current.component(.day, from: date)
+            let day = calendar.component(.day, from: date)
             cell.day_label.text = String(day)
             return cell
         } else {
@@ -146,17 +155,71 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     
     }
     
-    private func calcuateDaysBetweenTwoDates(start: Date, end: Date) -> Int {
-        let currentCalendar = Calendar.current
-        guard let start = currentCalendar.ordinality(of: .day, in: .era, for: start) else {
-            return 0
+    /*
+     * This is a utility function to manage the date arrangement in the first row.
+     * Add previous days according to the starting weekday of the month so that
+     * the header day row matches with the day of the first row dates.
+     */
+    func assignCalendarCellAsPerDate(date: Date) {
+        var tempDate = date
+        let day = calendar.component(.weekday, from: tempDate)
+        switch day {
+        case 1:
+            // Sunday
+            for _ in 0..<6 {
+                let prevDay = calendar.date(byAdding: .day, value: -1, to: tempDate)!
+                totalDates[0].insert(prevDay, at: 0)
+                tempDate = prevDay
+            }
+        case 2:
+            // Monday
+            break
+            
+        case 3:
+            //Tuesday
+            for _ in 0..<1 {
+                let prevDay = calendar.date(byAdding: .day, value: -1, to: tempDate)!
+                totalDates[0].insert(prevDay, at: 0)
+                tempDate = prevDay
+            }
+        case 4:
+            // Wednesday
+            for _ in 0..<2 {
+                let prevDay = calendar.date(byAdding: .day, value: -1, to: tempDate)!
+                totalDates[0].insert(prevDay, at: 0)
+                tempDate = prevDay
+            }
+        case 5:
+            //Thursday
+            for _ in 0..<3 {
+                let prevDay = calendar.date(byAdding: .day, value: -1, to: tempDate)!
+                totalDates[0].insert(prevDay, at: 0)
+                tempDate = prevDay
+            }
+        case 6:
+            //Friday
+            for _ in 0..<4 {
+                let prevDay = calendar.date(byAdding: .day, value: -1, to: tempDate)!
+                totalDates[0].insert(prevDay, at: 0)
+                tempDate = prevDay
+            }
+        case 7:
+            //Saturday
+            for _ in 0..<5 {
+                let prevDay = calendar.date(byAdding: .day, value: -1, to: tempDate)!
+                totalDates[0].insert(prevDay, at: 0)
+                tempDate = prevDay
+            }
+        default: break
+            //Do nothing
+
         }
-        guard let end = currentCalendar.ordinality(of: .day, in: .era, for: end) else {
-            return 0
-        }
-        return end - start
     }
     
+    /*
+     * This method contains the algorithms for highligting the selected dates
+     * and for getting the agenda items for that date.
+     */
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         
         let cell = calendarView.cellForItem(at: indexPath) as! CalendarCellCollectionViewCell
@@ -179,7 +242,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         for _ in 0..<7 {
             let newItem = dataModel.getAgendaItems(day: date)
             deque.enqueue([date: newItem])
-            date = Calendar.current.date(byAdding: .day, value: 1, to: date)!
+            date = calendar.date(byAdding: .day, value: 1, to: date)!
         }
     
         agendaView.reloadData()
@@ -189,6 +252,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
    
     
     func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
+        // Scroll up the calendar to the appropriate day
         
     }
     
@@ -250,6 +314,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         return cell
         
     }
+
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         
@@ -257,6 +322,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         let totalSpace = flowLayout.sectionInset.left
             + flowLayout.sectionInset.right
             + (flowLayout.minimumInteritemSpacing * CGFloat(noOfDays))
+        print(collectionView.bounds.width)
         
         let size = Int((collectionView.bounds.width - totalSpace) / CGFloat(noOfDays))
         return CGSize(width: size, height: size)
@@ -265,8 +331,8 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
         if scrollView.isKind(of: UICollectionView.self) {
             // Get the first date of the current month to get previous and next months
-            let firstDay = Calendar.current.date(from: Calendar.current.dateComponents([.year, .month], from: Calendar.current.startOfDay(for: Date())))!
-            let nextMonth = Calendar.current.date(byAdding: .month, value: 1, to: firstDay)
+            let firstDay = calendar.date(from: calendar.dateComponents([.year, .month], from: calendar.startOfDay(for: Date())))!
+            let nextMonth = calendar.date(byAdding: .month, value: 1, to: firstDay)
             let days = getAllDates(day: nextMonth!)
             totalDates.append(days)
             //Resize the collectionview height
@@ -294,7 +360,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
                 NSLog("Table view scrolled Up")
                 let element = deque.dequeueBack()
                 let day = element?.keys.first!
-                let nextDay = Calendar.current.date(byAdding: .day, value: 1, to: day!)!
+                let nextDay = calendar.date(byAdding: .day, value: 1, to: day!)!
                 let items = dataModel.getAgendaItems(day: nextDay)
                 deque.enqueue([nextDay: items])
                 deque.dequeueRemove()
@@ -303,7 +369,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
                 NSLog("Table view scrolled Down")
                 let element = deque.dequeue()
                 let day = element?.keys.first!
-                let prevDay = Calendar.current.date(byAdding: .day, value: -1, to: day!)!
+                let prevDay = calendar.date(byAdding: .day, value: -1, to: day!)!
                 let items = dataModel.getAgendaItems(day: prevDay)
                 deque.enqueueFront([prevDay: items])
                 deque.dequeueBackRemove()

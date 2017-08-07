@@ -20,6 +20,7 @@
 		0B36966B1F2842EA000447C7 /* DataModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B36966A1F2842EA000447C7 /* DataModel.swift */; };
 		0B36966F1F285EA6000447C7 /* CalendarViewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B36966E1F285EA6000447C7 /* CalendarViewLayout.swift */; };
 		0B3696711F2980BC000447C7 /* HeaderCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B3696701F2980BC000447C7 /* HeaderCollectionViewCell.swift */; };
+		0BBEC0E81F372F27000BC6D6 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BBEC0E71F372F27000BC6D6 /* Constants.swift */; };
 		0BF923DA1F33FDC7000BA327 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BF923D91F33FDC7000BA327 /* Extensions.swift */; };
 /* End PBXBuildFile section */
 
@@ -60,6 +61,7 @@
 		0B36966A1F2842EA000447C7 /* DataModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataModel.swift; sourceTree = "<group>"; };
 		0B36966E1F285EA6000447C7 /* CalendarViewLayout.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CalendarViewLayout.swift; sourceTree = "<group>"; };
 		0B3696701F2980BC000447C7 /* HeaderCollectionViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HeaderCollectionViewCell.swift; sourceTree = "<group>"; };
+		0BBEC0E71F372F27000BC6D6 /* Constants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		0BF923D91F33FDC7000BA327 /* Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -114,6 +116,7 @@
 			children = (
 				0B36962F1F22DCB3000447C7 /* AppDelegate.swift */,
 				0B3696311F22DCB3000447C7 /* ViewController.swift */,
+				0BBEC0E71F372F27000BC6D6 /* Constants.swift */,
 				0B36966A1F2842EA000447C7 /* DataModel.swift */,
 				0BF923D91F33FDC7000BA327 /* Extensions.swift */,
 				0B3696331F22DCB3000447C7 /* Main.storyboard */,
@@ -286,6 +289,7 @@
 				0B3696711F2980BC000447C7 /* HeaderCollectionViewCell.swift in Sources */,
 				0B36966B1F2842EA000447C7 /* DataModel.swift in Sources */,
 				0B36966F1F285EA6000447C7 /* CalendarViewLayout.swift in Sources */,
+				0BBEC0E81F372F27000BC6D6 /* Constants.swift in Sources */,
 				0B3696321F22DCB3000447C7 /* ViewController.swift in Sources */,
 				0B3696301F22DCB3000447C7 /* AppDelegate.swift in Sources */,
 				0B3696381F22DCB3000447C7 /* cal.xcdatamodeld in Sources */,

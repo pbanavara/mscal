@@ -24,6 +24,13 @@ extension Date {
         let strMonth = dateFormatter.string(from: self)
         return strMonth
     }
+    
+    func getFirstDayOfMonth() -> Date {
+        let components = Calendar.current.dateComponents([.year, .month], from: self)
+        let startOfMonth = Calendar.current.date(from: components)
+        return startOfMonth!
+    }
+    
 }
 
 extension UIColor {
