@@ -331,10 +331,6 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
         if scrollView.isKind(of: UICollectionView.self) {
             // Get the first date of the current month to get previous and next months
-            let firstDay = calendar.date(from: calendar.dateComponents([.year, .month], from: calendar.startOfDay(for: Date())))!
-            let nextMonth = calendar.date(byAdding: .month, value: 1, to: firstDay)
-            let days = getAllDates(day: nextMonth!)
-            totalDates.append(days)
             //Resize the collectionview height
             let newCalendarSize = CGSize(width: calendarView.collectionViewLayout.collectionViewContentSize.width, height: bounds.size.height * 2.5)
             calendarView.frame = CGRect(origin: bounds.origin, size: newCalendarSize)
@@ -344,6 +340,16 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
                                       width: agendaView.contentSize.width, height: tableBounds.height)
             calendarView.reloadData()
     
+        } else {
+            let newCalendarSize = CGSize(width: calendarView.collectionViewLayout.collectionViewContentSize.width, height: bounds.size.height)
+            calendarView.frame = CGRect(origin: bounds.origin, size: newCalendarSize)
+            // Resize the tableview height according to the new collectionview height
+            // Change the hardcoded 120
+            agendaView.frame = CGRect(x: tableBounds.origin.x, y: tableBounds.origin.y,
+                                      width: agendaView.contentSize.width, height: tableBounds.height)
+            calendarView.reloadData()
+
+            
         }
         
     }
@@ -352,12 +358,16 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         return CGFloat(tableCellHeight)
     }
     
+    func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
+        print(velocity)
+    }
+    
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         if scrollView.isKind(of: UITableView.self) {
             let translation = scrollView.panGestureRecognizer.translation(in: scrollView.superview!)
             if translation.y < 0 {
                 // swipes from top to bottom of screen -> down
-                NSLog("Table view scrolled Up")
+               // NSLog("Table view scrolled Up")
                 let element = deque.dequeueBack()
                 let day = element?.keys.first!
                 let nextDay = calendar.date(byAdding: .day, value: 1, to: day!)!
@@ -366,7 +376,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
                 deque.dequeueRemove()
                 agendaView.reloadData()
             } else {
-                NSLog("Table view scrolled Down")
+               // NSLog("Table view scrolled Down")
                 let element = deque.dequeue()
                 let day = element?.keys.first!
                 let prevDay = calendar.date(byAdding: .day, value: -1, to: day!)!
@@ -376,6 +386,17 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
                 agendaView.reloadData()
                 
             }
+        } else if scrollView.isKind(of: UICollectionView.self) {
+            let translation = scrollView.panGestureRecognizer.translation(in: scrollView.superview!)
+            if translation.y < 0 {
+                let firstDay = currentDate.getFirstDayOfMonth()
+                let nextMonth = calendar.date(byAdding: .month, value: 1, to: firstDay)
+                let days = getAllDates(day: nextMonth!)
+                totalDates.append(days)
+
+            }
+            
+            
         }
 
         
