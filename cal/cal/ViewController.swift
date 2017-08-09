@@ -240,7 +240,10 @@ UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
         deque.enqueueFront([date: ["adsfs", "face", "new", "abs"]])
         agendaView.reloadData()
         cell.setBackgroundColor()
+        totalDates.dropLast(indexPath.row)
+        let indexPaths = totalDates.map { IndexPath(item: totalDates.index(of: $0)!, section: 0) }
         
+        collectionView.reloadItems(at: indexPaths)
         deque.empty()
         
         // Always maintain 8 elements in the dequeue since we are storing all the agenda items in a
